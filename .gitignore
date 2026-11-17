@@ -1,0 +1,27 @@
+# dependencies
+node_modules
+
+# next.js build output
+.next
+out
+
+# local env files
+.env*.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# raw generation assets — the 4K masters, intermediate shots, and test
+# encodes used to produce public/video/*.mp4. ~490MB, irrelevant to the
+# running site, and over GitHub's 100MB per-file limit.
+/output
+
+# scratch files from fonts/verification work, not part of the shipped site
+.tmp
+.tmp-fonts
+.impeccable
+
+# Playwright browser cache, if ever installed locally under the project
+test-results
+playwright-report

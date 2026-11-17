@@ -1,0 +1,705 @@
+/* ==========================================================================
+   Cinematic stage
+   Every animated property is transform or opacity. Nothing here animates a
+   property that triggers layout.
+   ========================================================================== */
+
+/* No height on purpose: ScrollTrigger wraps the pinned stage in a pin-spacer
+   inside this element and grows it to the pin distance. A fixed height here
+   caps the spacer, the pin never lengthens the document, and every section
+   below ends up underneath the fixed stage. */
+.cine {
+  position: relative;
+  background: #000;
+}
+
+.cine__stage {
+  position: relative;
+  height: 100svh;
+  width: 100%;
+  overflow: hidden;
+  background: #000;
+  isolation: isolate;
+}
+
+/* ------------------------------------------------------------------- film */
+
+.cine__frame {
+  position: absolute;
+  inset: 0;
+  transform-origin: 54% 38%; /* the monitor screen in the closing frame */
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+}
+
+.cine__frame video,
+.cine__poster,
+.cine__poster img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.cine__poster {
+  z-index: 1;
+  display: block;
+}
+
+.cine__frame video {
+  z-index: 2;
+}
+
+/* --------------------------------------------------------------- curtains */
+
+.cine__curtains {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.cine__curtain {
+  position: absolute;
+  top: -14%;
+  height: 128%;
+  width: 44%;
+  transform-origin: center;
+  will-change: transform;
+  opacity: 0.42;
+  background-image: repeating-linear-gradient(
+      to right,
+      rgba(255, 255, 255, 0.3) 0 1px,
+      transparent 1px 78px
+    ),
+    repeating-linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0.13) 0 1px,
+      transparent 1px 140px
+    );
+}
+
+.cine__curtain--l {
+  left: 0;
+  mask-image: linear-gradient(to right, #000 52%, transparent 100%);
+}
+
+.cine__curtain--r {
+  right: 0;
+  mask-image: linear-gradient(to left, #000 52%, transparent 100%);
+}
+
+/* ------------------------------------------------------------------ scrim
+   Only present while a content panel is on screen. During the construction
+   story it is fully transparent, so nothing sits between the viewer and the
+   film. */
+
+.cine__scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  opacity: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      120% 90% at 30% 50%,
+      rgba(0, 0, 0, 0.96) 0%,
+      rgba(0, 0, 0, 0.86) 38%,
+      rgba(0, 0, 0, 0.5) 70%,
+      rgba(0, 0, 0, 0.24) 100%
+    );
+  will-change: opacity;
+}
+
+/* ------------------------------------------------------------------- hero
+   A film title card: centred, in the lower third, so the architecture in the
+   upper two thirds is never covered. */
+
+.cine__hero {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  display: grid;
+  align-content: end;
+  justify-items: center;
+  text-align: center;
+  padding-bottom: clamp(6rem, 4rem + 9vh, 11rem);
+  padding-top: 5rem;
+  will-change: transform, opacity;
+  pointer-events: none;
+}
+
+/* A tight pool of shade sized to the text, not the screen.
+
+   An earlier, larger version of this covered most of the lower frame and
+   greyed out the architecture — it made the film look washed out, which was
+   exactly the opposite of the point. The heavy lifting for contrast is done
+   by the text-shadows below; this only takes the edge off the line work
+   directly behind the words. */
+.cine__hero::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 4%;
+  width: min(920px, 88vw);
+  height: 46%;
+  transform: translateX(-50%);
+  pointer-events: none;
+  background: radial-gradient(
+    54% 52% at 50% 62%,
+    rgba(0, 0, 0, 0.68) 0%,
+    rgba(0, 0, 0, 0.42) 46%,
+    rgba(0, 0, 0, 0.12) 76%,
+    rgba(0, 0, 0, 0) 100%
+  );
+}
+
+.cine__hero .shell {
+  position: relative;
+  z-index: 1;
+  pointer-events: auto;
+  display: grid;
+  justify-items: center;
+  gap: 0;
+}
+
+.cine__h1 {
+  margin: 0;
+  max-width: 24ch;
+  font-size: min(var(--step-4), 7.6vh);
+  line-height: 1.06;
+  /* Capitals with open tracking rather than tight lower-case: the line is
+     five words, and set this way it reads as a title card cut into the film
+     instead of a paragraph laid on top of it. */
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  font-weight: var(--w-heading);
+  color: #fff;
+  text-wrap: balance;
+  /* Separation from white line work on any frame of the film, without
+     darkening the film itself. A tight dark rim plus a wide soft one: the
+     rim guarantees the edge, the halo lifts it off busy geometry. */
+  text-shadow:
+    0 0 2px rgba(0, 0, 0, 0.9),
+    0 1px 4px rgba(0, 0, 0, 0.85),
+    0 2px 34px rgba(0, 0, 0, 0.75);
+}
+
+.cine__h1 span {
+  display: block;
+}
+
+.cine__sub {
+  font-weight: var(--w-body);
+  margin: 1.3rem 0 0;
+  max-width: 44ch;
+  font-size: var(--step-1);
+  line-height: 1.45;
+  color: #e4e4e4;
+  text-wrap: pretty;
+  text-shadow:
+    0 0 2px rgba(0, 0, 0, 0.9),
+    0 1px 3px rgba(0, 0, 0, 0.85),
+    0 1px 22px rgba(0, 0, 0, 0.7);
+}
+
+.cine__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.7rem;
+  margin-top: clamp(1.6rem, 1.1rem + 1.8vh, 2.6rem);
+}
+
+/* ----------------------------------------------------------------- panels
+   Content arrives only after the construction story has played. Each panel
+   is a full-stage overlay, faded in over the scrim. */
+
+.cine__panel {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: grid;
+  align-content: center;
+  opacity: 0;
+  visibility: hidden;
+  will-change: transform, opacity;
+  /* Reserve the fixed wordmark's band at the top and the progress rule's at
+     the bottom. Without this, a panel taller than the stage overflows upward
+     and its heading lands on top of the logo. */
+  padding-top: 6rem;
+  padding-bottom: 4rem;
+}
+
+/* Heading rail on the left, substance on the right. */
+.cine__panel-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.78fr) minmax(0, 1.35fr);
+  gap: clamp(1.5rem, 0.8rem + 3vw, 4.5rem);
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .cine__panel-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: clamp(1rem, 0.6rem + 2vh, 1.8rem);
+  }
+}
+
+/* Panel copy sits over the film too, so it carries the same rim + halo the
+   hero copy does. The scrim alone is not enough where the architecture has
+   bright mullions running behind a line of text. */
+.cine__panel-title,
+.cine__panel-lede,
+.spec__name,
+.spec__body,
+.tags li,
+.case__title,
+.case__meta dt,
+.case__meta dd {
+  text-shadow:
+    0 0 2px rgba(0, 0, 0, 0.85),
+    0 1px 3px rgba(0, 0, 0, 0.8),
+    0 1px 18px rgba(0, 0, 0, 0.6);
+}
+
+.cine__panel-title {
+  margin: 0;
+  font-size: var(--step-3);
+  line-height: 1.02;
+  letter-spacing: -0.032em;
+  font-weight: var(--w-heading);
+  color: #fff;
+  text-wrap: balance;
+}
+
+.cine__panel-lede {
+  font-weight: var(--w-body);
+  margin: 0.85rem 0 0;
+  max-width: 34ch;
+  color: #c6c6c6;
+  font-size: var(--step-1);
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+
+/* specification schedule — the structural idea of the whole site */
+.spec {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.24);
+  max-width: 62rem;
+}
+
+.spec__row {
+  display: grid;
+  grid-template-columns: minmax(0, 15rem) minmax(0, 1fr);
+  gap: clamp(1rem, 0.5rem + 2vw, 2.75rem);
+  padding-block: clamp(0.75rem, 0.5rem + 1.1vh, 1.35rem);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.24);
+  align-items: baseline;
+}
+
+.spec__name {
+  margin: 0;
+  font-size: var(--step-1);
+  font-weight: var(--w-sub);
+  letter-spacing: -0.014em;
+  color: #fff;
+}
+
+.spec__body {
+  font-weight: var(--w-body);
+  margin: 0;
+  color: #c2c2c2;
+  line-height: 1.55;
+  max-width: 52ch;
+  font-size: var(--step-0);
+}
+
+@media (max-width: 760px) {
+  .spec__row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.3rem;
+  }
+}
+
+/* Industries.
+
+   An explicit grid rather than a wrapping flex row: with six items, flex
+   packed five across and left the sixth alone in a long empty cell. Three
+   columns divide the six evenly at every breakpoint that can hold them, and
+   the cell structure deliberately echoes the window mullions in the frame
+   behind it. */
+.tags {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.24);
+  border-left: 1px solid rgba(255, 255, 255, 0.24);
+  max-width: 58rem;
+}
+
+.tags li {
+  font-weight: var(--w-sub);
+  padding: clamp(0.85rem, 0.6rem + 1vh, 1.35rem) 1.1rem;
+  border-right: 1px solid rgba(255, 255, 255, 0.24);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.24);
+  font-size: var(--step-1);
+  color: #ededed;
+  letter-spacing: -0.01em;
+}
+
+@media (max-width: 760px) {
+  .tags {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* selected work */
+.case {
+  display: grid;
+  gap: clamp(1.2rem, 0.8rem + 2vw, 2.4rem);
+  margin-top: 0;
+  grid-template-columns: minmax(0, 1fr);
+  max-width: 62rem;
+}
+
+.case__strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  background: rgba(255, 255, 255, 0.24);
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  max-width: 42rem;
+}
+
+.case__strip figure {
+  margin: 0;
+  background: #000;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+}
+
+/* the thumbnails are line art on black shown small; without a lift they
+   disappear into the film behind them */
+.case__strip img {
+  filter: contrast(1.12) brightness(1.14);
+}
+
+.case__strip img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.case__title {
+  margin: 0 0 0.75rem;
+  font-size: var(--step-2);
+  font-weight: var(--w-sub);
+  letter-spacing: -0.02em;
+  color: #fff;
+}
+
+.case__meta dl {
+  margin: 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.24);
+  max-width: 34rem;
+}
+
+.case__meta dl > div {
+  display: grid;
+  grid-template-columns: minmax(0, 9rem) minmax(0, 1fr);
+  gap: 1rem;
+  padding-block: 0.6rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.24);
+}
+
+.case__meta dt {
+  font-size: var(--step--1);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #8a8a8a;
+}
+
+.case__meta dd {
+  font-weight: var(--w-body);
+  margin: 0;
+  color: #ededed;
+  font-size: var(--step-0);
+}
+
+/* --------------------------------------------------------------------- hud
+   Reduced to a single hairline. The scene counter and timecode that used to
+   sit here were production metadata: a prospective client has no use for
+   knowing they are 26.7 seconds into scene 04. */
+
+.cine__hud {
+  position: absolute;
+  left: var(--gutter);
+  right: var(--gutter);
+  bottom: clamp(1.1rem, 0.8rem + 1.2vh, 2rem);
+  z-index: 7;
+  pointer-events: none;
+}
+
+.cine__track {
+  position: relative;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.2);
+  overflow: hidden;
+}
+
+.cine__bar {
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  transform: scaleX(0);
+  transform-origin: left center;
+  will-change: transform;
+}
+
+/* a hairline that retracts once the film can be scrubbed */
+.cine__loading {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 2px;
+  width: 100%;
+  z-index: 8;
+  background: linear-gradient(to right, transparent, #fff, transparent);
+  transform-origin: left center;
+  animation: cine-load 1.4s ease-in-out infinite;
+  opacity: 0.5;
+}
+
+.cine__loading.is-ready {
+  animation: none;
+  opacity: 0;
+  transition: opacity 0.4s ease-out;
+}
+
+@keyframes cine-load {
+  0% {
+    transform: scaleX(0);
+    transform-origin: left center;
+  }
+  50% {
+    transform: scaleX(1);
+    transform-origin: left center;
+  }
+  51% {
+    transform-origin: right center;
+  }
+  100% {
+    transform: scaleX(0);
+    transform-origin: right center;
+  }
+}
+
+/* --------------------------------------------- reduced motion / no script
+   No pin, no scrub, no film. The still frame stands in and every panel
+   becomes an ordinary stacked section. All copy and navigation survive. */
+
+.cine[data-static="true"] .cine__stage,
+.cine[data-static="true"] {
+  height: auto;
+  overflow: visible;
+}
+
+.cine[data-static="true"] .cine__frame {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  transform: none !important;
+}
+
+.cine[data-static="true"] .cine__frame video,
+.cine[data-static="true"] .cine__curtains,
+.cine[data-static="true"] .cine__scrim,
+.cine[data-static="true"] .cine__hud,
+.cine[data-static="true"] .cine__loading {
+  display: none;
+}
+
+.cine[data-static="true"] .cine__hero,
+.cine[data-static="true"] .cine__panel {
+  position: relative;
+  inset: auto;
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: none !important;
+  padding-block: var(--section-y);
+  text-align: left;
+  justify-items: start;
+}
+
+.cine[data-static="true"] .cine__hero::before {
+  display: none;
+}
+
+.cine[data-static="true"] .cine__hero .shell,
+.cine[data-static="true"] .cine__actions {
+  justify-items: start;
+  justify-content: flex-start;
+}
+
+@media (scripting: none) {
+  .cine,
+  .cine__stage {
+    height: auto;
+    overflow: visible;
+  }
+  .cine__frame {
+    position: relative;
+    aspect-ratio: 16 / 9;
+  }
+  .cine__frame video,
+  .cine__curtains,
+  .cine__scrim,
+  .cine__hud,
+  .cine__loading {
+    display: none;
+  }
+  .cine__hero,
+  .cine__panel {
+    position: relative;
+    inset: auto;
+    opacity: 1;
+    visibility: visible;
+    padding-block: var(--section-y);
+    text-align: left;
+    justify-items: start;
+  }
+  .cine__hero::before {
+    display: none;
+  }
+}
+
+/* ------------------------------------------------- short viewports
+   The services panel is the tallest block on the site: five rows, each a
+   name plus a two-line description. On a 640–667px-tall phone that ran to
+   ~690px and pushed out past both the wordmark and the bottom edge.
+
+   Rather than drop content, the whole block is compacted: the type steps
+   down, the rows tighten, and the stage's reserved bands shrink. Nothing is
+   hidden — a small screen gets the same five services and the same five
+   descriptions, just set tighter. */
+
+@media (max-height: 740px) {
+  .cine__panel {
+    padding-top: 4.25rem;
+    padding-bottom: 2.25rem;
+  }
+
+  .cine__panel-grid {
+    gap: 0.85rem;
+  }
+
+  .cine__panel-title {
+    font-size: clamp(1.35rem, 1rem + 2.2vh, 1.95rem);
+  }
+
+  .cine__panel-lede {
+    font-size: var(--step-0);
+    margin-top: 0.45rem;
+    line-height: 1.4;
+  }
+
+  .spec__row {
+    padding-block: 0.42rem;
+    gap: 0.15rem;
+  }
+
+  .spec__name {
+    font-size: var(--step-0);
+  }
+
+  .spec__body {
+    font-size: var(--step--1);
+    line-height: 1.38;
+  }
+
+  .tags li {
+    padding-block: 0.6rem;
+    font-size: var(--step-0);
+  }
+
+  .case__strip {
+    max-width: 26rem;
+  }
+
+  .case__title {
+    font-size: var(--step-1);
+    margin-bottom: 0.4rem;
+  }
+
+  .case__meta dl > div {
+    padding-block: 0.32rem;
+  }
+
+  .cine__hero {
+    padding-top: 4rem;
+    padding-bottom: clamp(3rem, 2rem + 5vh, 6rem);
+  }
+}
+
+/* Very short: phones in the 640px class, and any landscape phone. */
+@media (max-height: 660px) {
+  .cine__panel {
+    padding-top: 3.75rem;
+    padding-bottom: 1.75rem;
+  }
+
+  .spec__row {
+    padding-block: 0.3rem;
+  }
+
+  .cine__panel-lede {
+    font-size: var(--step--1);
+    line-height: 1.32;
+    margin-top: 0.3rem;
+  }
+}
+
+/* ------------------------------------------------- hero on small screens
+   At desktop the title card is two lines. On a 375px phone the same size
+   ran to four and swallowed the frame, and the shade pool — sized to a
+   desktop text block — stopped short of the sub-heading, leaving it to
+   compete with the ground grid. Both are corrected here rather than by
+   shrinking the desktop composition. */
+
+@media (max-width: 560px) {
+  .cine__h1 {
+    font-size: clamp(1.85rem, 1.1rem + 5.4vw, 2.55rem);
+    line-height: 1.05;
+    letter-spacing: 0.005em;
+    max-width: 18ch;
+  }
+
+  .cine__sub {
+    font-size: var(--step-0);
+    line-height: 1.4;
+    margin-top: 0.9rem;
+    max-width: 34ch;
+  }
+
+  /* a pool that actually covers the block it is there to support */
+  .cine__hero::before {
+    width: 100%;
+    height: 64%;
+    bottom: 2%;
+    background: radial-gradient(
+      74% 58% at 50% 64%,
+      rgba(0, 0, 0, 0.88) 0%,
+      rgba(0, 0, 0, 0.66) 44%,
+      rgba(0, 0, 0, 0.24) 76%,
+      rgba(0, 0, 0, 0) 100%
+    );
+  }
+}

@@ -1,0 +1,246 @@
+/* ==========================================================================
+   METAPHORA — architectural wireframe world
+   Monochrome by commitment, not by omission. The ground is true black because
+   the scene is a night-lit blueprint; every surface is drawn in line, not fill.
+   ========================================================================== */
+
+:root {
+  /* Ground */
+  --ground: #000000;
+  --ground-raised: #070707;
+  --ground-sunk: #030303;
+
+  /* Ink — all values verified >= 4.5:1 against --ground */
+  --ink: #ffffff;
+  --ink-1: #ededed; /* body            ~18.9:1 */
+  --ink-2: #9c9c9c; /* secondary        ~7.6:1 */
+  --ink-3: #7c7c7c; /* tertiary, placeholder ~5.0:1 */
+
+  /* Line — the primary structural material */
+  --line: rgba(255, 255, 255, 0.14);
+  --line-mid: rgba(255, 255, 255, 0.26);
+  --line-strong: rgba(255, 255, 255, 0.52);
+
+  /* Inverted surface — the one filled element in the whole system */
+  --invert-bg: #f4f4f4;
+  --invert-ink: #000000;
+
+  /* Type */
+  --step--1: clamp(0.72rem, 0.69rem + 0.14vw, 0.8rem);
+  --step-0: clamp(0.9rem, 0.86rem + 0.2vw, 1rem);
+  --step-1: clamp(1.06rem, 0.98rem + 0.4vw, 1.3rem);
+  --step-2: clamp(1.35rem, 1.15rem + 1vw, 2rem);
+  --step-3: clamp(1.9rem, 1.45rem + 2.2vw, 3.4rem);
+  --step-4: clamp(2.6rem, 1.6rem + 4.6vw, 5.6rem);
+
+  /* Rhythm */
+  --gutter: clamp(1.25rem, 0.9rem + 1.7vw, 2.75rem);
+  --section-y: clamp(5rem, 3.4rem + 8vw, 11rem);
+  --measure: 68ch;
+
+  /* Weight roles.
+     Headings Medium, sub-headings Regular, running text Light — the three
+     steps Chillax is designed around, and the same three exist in Onest so
+     the Ukrainian locale keeps the identical hierarchy. */
+  --w-heading: 500;
+  --w-sub: 400;
+  --w-body: 300;
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-io: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/* --------------------------------------------------------------- reset */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  /* Deliberately NOT `scroll-behavior: smooth`.
+     On a scrubbed timeline it fights the scrub: the browser keeps animating
+     the scroll position after the wheel stops, so the film overshoots the
+     frame the visitor meant to stop on and then eases back. Native scroll
+     plus GSAP's own scrub gives the smoothing without the overshoot.
+     Anchor links are eased in JS instead, where it can be switched off for
+     reduced motion. */
+  scroll-behavior: auto;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  max-width: 100%;
+}
+
+/* Deliberately NO `overflow-x` on html or body.
+   It is the usual reflex against sideways scroll, and it silently breaks
+   ScrollTrigger: with the root clipped, ScrollTrigger's scroll reader
+   returns 0 forever, so every pinned, scrubbed timeline sits at progress 0
+   while the page scrolls normally underneath it. Body overflow also
+   propagates to the viewport, so moving it down one level does not help.
+   Horizontal overflow is instead prevented at the source — the cinematic
+   stage clips its own transformed children, and every grid uses minmax(0,…)
+   so wide content cannot push the track open. */
+
+body {
+  background: var(--ground);
+  color: var(--ink-1);
+  /* The interface face is bound per locale in each root layout: Chillax for
+     EN and DE, Onest for UK (Chillax has no Cyrillic). Both expose the same
+     custom property, so everything downstream is face-agnostic. */
+  font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  font-weight: var(--w-body);
+  font-size: var(--step-0);
+  line-height: 1.6;
+  font-synthesis-weight: none;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+img,
+video,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+/* ------------------------------------------------- browser surfaces
+   The parts we did not draw still carry the design. */
+
+::selection {
+  background: var(--ink);
+  color: var(--ground);
+}
+
+html {
+  scrollbar-color: rgba(255, 255, 255, 0.22) transparent;
+  scrollbar-width: thin;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--ground);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+  border: 3px solid var(--ground);
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.32);
+}
+
+:where(input, textarea) {
+  caret-color: var(--ink);
+}
+
+:focus-visible {
+  outline: 1px solid var(--ink);
+  outline-offset: 3px;
+}
+
+/* Remove the ring for pointer users without stranding keyboard users */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+a {
+  color: inherit;
+  text-decoration-color: var(--line-mid);
+  text-underline-offset: 0.22em;
+  text-decoration-thickness: 1px;
+}
+
+/* Tabular figures wherever numbers line up */
+[data-nums] {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+/* ------------------------------------------------------------ primitives */
+
+.shell {
+  width: 100%;
+  max-width: 1440px;
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.rule {
+  height: 1px;
+  background: var(--line);
+  border: 0;
+  margin: 0;
+}
+
+.label {
+  font-size: var(--step--1);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  font-weight: 500;
+}
+
+.skip-link {
+  position: absolute;
+  left: var(--gutter);
+  top: 0;
+  transform: translateY(-120%);
+  z-index: 200;
+  background: var(--invert-bg);
+  color: var(--invert-ink);
+  padding: 0.7rem 1.1rem;
+  font-size: var(--step--1);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: transform 0.2s var(--ease-out);
+}
+.skip-link:focus-visible {
+  transform: translateY(0.6rem);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* --------------------------------------------------------- reduced motion */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

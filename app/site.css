@@ -1,0 +1,460 @@
+/* ==========================================================================
+   Site surfaces outside the cinematic stage.
+   ========================================================================== */
+
+/* ----------------------------------------------------------------- buttons */
+
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7em;
+  padding: 1rem 1.7rem;
+  font-size: var(--step--1);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 500;
+  text-decoration: none;
+  border: 1px solid transparent;
+  cursor: pointer;
+  overflow: hidden;
+  transition:
+    color 0.4s var(--ease-out),
+    border-color 0.4s var(--ease-out);
+}
+
+.btn span {
+  position: relative;
+  z-index: 1;
+  transition: transform 0.4s var(--ease-out);
+}
+
+.btn > :not(span) {
+  position: relative;
+  z-index: 1;
+}
+
+/* the fill wipes in from the leading edge rather than cross-fading */
+.btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.45s var(--ease-out);
+}
+
+.btn:hover span,
+.btn:focus-visible span {
+  transform: translateX(4px);
+}
+
+.btn--solid {
+  background: var(--invert-bg);
+  color: var(--invert-ink);
+  border-color: var(--invert-bg);
+}
+
+.btn--solid::before {
+  background: #fff;
+}
+
+.btn--solid:hover::before,
+.btn--solid:focus-visible::before {
+  transform: scaleX(1);
+}
+
+.btn--ghost {
+  color: #ededed;
+  border-color: rgba(255, 255, 255, 0.32);
+  backdrop-filter: blur(2px);
+}
+
+.btn--ghost::before {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.btn--ghost:hover,
+.btn--ghost:focus-visible {
+  color: #fff;
+  border-color: #fff;
+}
+
+.btn--ghost:hover::before,
+.btn--ghost:focus-visible::before {
+  transform: scaleX(1);
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.btn:disabled:hover span {
+  transform: none;
+}
+
+/* --------------------------------------------------------------------- nav */
+
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.15rem var(--gutter);
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.78), rgba(0, 0, 0, 0));
+  pointer-events: none;
+}
+
+.nav > * {
+  pointer-events: auto;
+}
+
+/* The wordmark is the one place Outfit appears, at Thin.
+   Set larger than the nav links around it: at weight 100 the strokes are
+   hairlines, and at label size they would simply disappear against the film.
+   Wide tracking is what gives a thin capital wordmark its authority. */
+.nav__brand {
+  font-family: var(--font-outfit), var(--font-body), ui-sans-serif, sans-serif;
+  font-size: clamp(0.95rem, 0.85rem + 0.45vw, 1.3rem);
+  letter-spacing: 0.42em;
+  font-weight: 100;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: #fff;
+  /* the trailing tracking would otherwise push the mark off-centre */
+  padding-inline-end: 0.42em;
+  text-shadow: 0 1px 16px rgba(0, 0, 0, 0.95);
+}
+
+.nav__links {
+  display: flex;
+  gap: clamp(1rem, 0.4rem + 1.6vw, 2.4rem);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.nav__links a,
+.nav__lang a {
+  font-size: var(--step--1);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: #9c9c9c;
+  transition: color 0.3s var(--ease-out);
+  text-shadow: 0 1px 14px rgba(0, 0, 0, 0.9);
+}
+
+.nav__links a:hover,
+.nav__lang a:hover,
+.nav__lang a[aria-current="true"] {
+  color: #fff;
+}
+
+.nav__lang {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: var(--step--1);
+}
+
+.nav__lang span > span {
+  color: rgba(255, 255, 255, 0.28);
+  margin-inline: 0.35rem;
+}
+
+@media (max-width: 767.98px) {
+  .nav__links {
+    display: none;
+  }
+}
+
+/* ----------------------------------------------------------------- inquiry
+   Composed from the client's reference sheet: the architectural photograph
+   bleeds off the lower-left corner of the section, the identity sits above
+   it, and the fields occupy the right column. */
+
+.inquiry {
+  position: relative;
+  border-top: 1px solid var(--line);
+  /* the top pad clears the fixed wordmark, which would otherwise sit on the
+     section heading as it scrolls past */
+  padding-block: calc(var(--section-y) + 2rem) var(--section-y);
+  background: var(--ground);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.inquiry__photo {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  z-index: 0;
+  width: clamp(22rem, 46vw, 46rem);
+  pointer-events: none;
+  /* One gradient, not two composited together: `mask-composite: intersect`
+     on an element this size measurably cost frames during the pinned scroll.
+     A single corner-anchored radial does the same job for nothing. */
+  mask-image: radial-gradient(
+    120% 120% at 0% 100%,
+    #000 52%,
+    rgba(0, 0, 0, 0.6) 76%,
+    transparent 100%
+  );
+}
+
+.inquiry__photo img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+@media (max-width: 899.98px) {
+  .inquiry__photo {
+    width: 78vw;
+    opacity: 0.55;
+  }
+}
+
+.inquiry__grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1fr);
+  gap: clamp(2rem, 1rem + 4vw, 6rem);
+  align-items: start;
+  transform-origin: 50% 30%;
+}
+
+@media (max-width: 899.98px) {
+  .inquiry__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* the intro keeps clear of the photograph beneath it */
+.inquiry__intro {
+  padding-bottom: clamp(6rem, 4rem + 12vw, 16rem);
+}
+
+/* On one column the photograph no longer sits beside the intro, so the
+   clearance that protects it on desktop becomes a dead gap between the
+   heading and the first field. The photo drops behind the lower half of the
+   form instead, where the fields have already thinned out. */
+@media (max-width: 899.98px) {
+  .inquiry__intro {
+    padding-bottom: 2.25rem;
+  }
+}
+
+.inquiry__title {
+  margin: 0;
+  font-size: var(--step-3);
+  letter-spacing: 0.04em;
+  font-weight: var(--w-heading);
+  color: var(--ink);
+  text-transform: uppercase;
+}
+
+.inquiry__tagline {
+  font-weight: var(--w-sub);
+  margin: 1rem 0 0;
+  color: var(--ink-1);
+  font-size: var(--step-1);
+  max-width: 32ch;
+}
+
+.inquiry__orient {
+  font-weight: var(--w-body);
+  margin: 1.3rem 0 0;
+  color: var(--ink-3);
+  font-size: var(--step-0);
+  max-width: 36ch;
+}
+
+/* ------------------------------------------------------------------ fields */
+
+.form {
+  display: grid;
+  gap: 0;
+}
+
+.field {
+  display: grid;
+  gap: 0.3rem;
+  position: relative;
+}
+
+.field + .field {
+  /* generous enough that a hint sitting under one field reads as belonging
+     to it, not to the label that follows */
+  margin-top: 2.1rem;
+}
+
+.field__label {
+  font-weight: var(--w-sub);
+  font-size: var(--step-0);
+  color: var(--ink-2);
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+}
+
+.field__opt {
+  font-size: 0.66rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.field input,
+.field textarea {
+  width: 100%;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--line-mid);
+  padding: 0.55rem 0;
+  color: var(--ink);
+  font-size: var(--step-0);
+  border-radius: 0;
+  transition: border-color 0.3s var(--ease-out);
+}
+
+.field textarea {
+  resize: vertical;
+  min-height: 5.5rem;
+  line-height: 1.55;
+}
+
+.field input::placeholder,
+.field textarea::placeholder {
+  color: var(--ink-3);
+}
+
+.field input:hover,
+.field textarea:hover {
+  border-bottom-color: var(--line-strong);
+}
+
+.field input:focus-visible,
+.field textarea:focus-visible {
+  outline: none;
+  border-bottom-color: var(--ink);
+  box-shadow: 0 1px 0 0 var(--ink);
+}
+
+.field__hint {
+  font-size: var(--step--1);
+  color: var(--ink-3);
+  margin: 0.4rem 0 0;
+  line-height: 1.4;
+}
+
+.field[data-invalid="true"] input,
+.field[data-invalid="true"] textarea {
+  border-bottom-color: var(--ink);
+}
+
+.field__error {
+  margin: 0.4rem 0 0;
+  font-size: var(--step--1);
+  color: var(--ink-1);
+  display: flex;
+  gap: 0.5rem;
+  align-items: baseline;
+}
+
+.field__error::before {
+  content: "";
+  width: 0.55rem;
+  height: 1px;
+  background: var(--ink);
+  flex: none;
+  transform: translateY(-0.25em);
+}
+
+.form__foot {
+  margin-top: clamp(1.8rem, 1.2rem + 2vw, 2.8rem);
+}
+
+.form__submit {
+  width: 100%;
+}
+
+.form__summary {
+  margin: 0 0 1rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--line-strong);
+  font-size: var(--step-0);
+  color: var(--ink-1);
+}
+
+.form__success {
+  border: 1px solid var(--line-strong);
+  padding: clamp(1.5rem, 1rem + 2vw, 2.5rem);
+}
+
+.form__success h3 {
+  margin: 0 0 0.6rem;
+  font-size: var(--step-2);
+  font-weight: var(--w-heading);
+  color: var(--ink);
+  letter-spacing: -0.02em;
+}
+
+.form__success p {
+  margin: 0;
+  color: var(--ink-2);
+  max-width: 44ch;
+}
+
+/* ------------------------------------------------------------------ footer */
+
+.footer {
+  border-top: 1px solid var(--line);
+  padding-block: clamp(2rem, 1.4rem + 2vw, 3.2rem);
+}
+
+.footer__grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.2rem 2rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.footer__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.4rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.footer__links a {
+  font-size: var(--step--1);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  text-decoration: none;
+  transition: color 0.3s var(--ease-out);
+}
+
+.footer__links a:hover {
+  color: var(--ink);
+}
+
+.footer__meta {
+  font-size: var(--step--1);
+  color: var(--ink-3);
+  letter-spacing: 0.06em;
+}

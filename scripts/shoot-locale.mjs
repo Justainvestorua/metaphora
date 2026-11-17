@@ -1,0 +1,13 @@
+import { chromium } from "playwright";
+const [,, base, lang] = process.argv;
+const b = await chromium.launch({ channel: "chrome" });
+const p = await b.newPage({ viewport: { width: 1440, height: 900 } });
+await p.goto(`${base}/${lang}`, { waitUntil: "domcontentloaded" });
+await p.waitForFunction(() => { const v=document.querySelector(".cine__frame video"); return v && v.readyState>=2; }, {timeout:60000});
+await p.waitForTimeout(1200);
+await p.screenshot({ path: `.impeccable/review/${lang}-01-open.png` });
+await p.evaluate(y => window.scrollTo({top:y, behavior:"auto"}), Math.round(900*18*0.665));
+await p.waitForTimeout(1200);
+await p.screenshot({ path: `.impeccable/review/${lang}-05-services.png` });
+await b.close();
+console.log("ok", lang);
